@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from "./routes/userRoute.js";
+import postRoute from "./routes/postRoute.js";
+import messageRoute from "./routes/messageRoute.js";
 
 dotenv.config({});
 
@@ -23,6 +25,8 @@ app.get('/', (req, res) => {
 })
 
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/post", postRoute);
+app.use("/api/v1/message", messageRoute);
 
 const PORT = process.env.PORT;
 
