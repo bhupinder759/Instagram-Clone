@@ -7,14 +7,20 @@ import {
   Search,
   TrendingUp,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthUser } from "@/redux/authSlice";
+import CreatePost from "./CreatePost";
 
 const LeftsideBar = () => {
   const navigate = useNavigate();
+  const {user} = useSelector(store => store.auth)
+  const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
 
   const logoutHandler = async () => {
     try {
@@ -22,6 +28,7 @@ const LeftsideBar = () => {
         withCredentials: true,
       });
       if (res.data.success) {
+        dispatch(setAuthUser(null));
         navigate("/login");
         toast.error(res.data.message);
       }
@@ -41,7 +48,7 @@ const LeftsideBar = () => {
     {
       icon: (
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarImage src={user?.profilePicture} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
       ),
@@ -50,9 +57,14 @@ const LeftsideBar = () => {
     { icon: <LogOut />, text: "Logout" },
   ];
 
+
   const sidebarHandler = (textType) => {
-    if (textType === "Logout") logoutHandler();
-  };
+    if (textType === "Logout") {
+      logoutHandler();
+    } else if (textType === "Create") {
+        setOpen(true);
+    }
+  }
   return (
     <>
       <div className="fixes top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen">
@@ -72,6 +84,8 @@ const LeftsideBar = () => {
             })}
           </div>
         </div>
+
+        <CreatePost open={open} setOpen={setOpen} />
       </div>
     </>
   );
