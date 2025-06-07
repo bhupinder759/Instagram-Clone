@@ -110,7 +110,7 @@ export const getProfile = async (req, res) => {
             return res.status(400).json({success: false, message: 'User ID is required' });
         }
 
-        const user = await User.findById(userId).select("-password -__v");
+        let user = await User.findById(userId).populate({path: 'posts', createAt: -1}).populate('bookmarks');
         if (!user) {
             return res.status(404).json({success: false, message: 'User not found' });
         }
