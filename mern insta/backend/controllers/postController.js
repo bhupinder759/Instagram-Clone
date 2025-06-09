@@ -3,6 +3,7 @@ import cloudinary from '../utils/cloudinary.js';
 import { Post } from '../models/postModel.js';
 import { User } from '../models/userModel.js';
 import { Comment } from '../models/commentModel.js';
+import { getReceiverSocketId, io } from '../socket/socket.js';
 
 export const addNewPost = async (req, res) => {
     try {
@@ -25,10 +26,8 @@ export const addNewPost = async (req, res) => {
         const cloudResponse = await cloudinary.uploader.upload(fileUri);
         const post = await Post.create({
             caption,
-            image: {
-                image: cloudResponse.secure_url,
-                author: authorId,
-            }
+            image: cloudResponse.secure_url,
+            author: authorId,
         });
         const user = await User.findById(authorId);
         if (user) {
@@ -110,6 +109,20 @@ export const likePost = async (req, res) => {
         await post.save();
 
         //implement socket io for real-time notification
+        const user = await User.findById(likeKarneWalaUserKiId).select('username profilePicture');
+        const postOwnerId = post.author.toString();
+        if (postOwnerId !== likeKarneWalaUserKiId) {
+            //emit a notifiaction event
+            const notification = {
+                type: 'like',
+                userId: likeKarneWalaUserKiId,
+                userDetails: user,
+                postId,
+                message: 'Your post was liked'
+            }
+            const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+            io.to(postOwnerSocketId).emit('notification', notification);
+        } 
 
         return res.status(200).json({
             success: true,
@@ -137,6 +150,22 @@ export const dislikePost = async (req, res) => {
         });
 
         await post.save();
+
+        //implement socket io for real-time notification
+        const user = await User.findById(likeHataneWalaUserKiId).select('username profilePicture');
+        const postOwnerId = post.author.toString();
+        if (postOwnerId !== likeHataneWalaUserKiId) {
+            //emit a notifiaction event
+            const notification = {
+                type: 'dislike',
+                userId: likeHataneWalaUserKiId,
+                userDetails: user,
+                postId,
+                message: 'Your post was liked'
+            }
+            const postOwnerSocketId = getReceiverSocketId(postOwnerId);
+            io.to(postOwnerSocketId).emit('notification', notification);
+        } 
 
         return res.status(200).json({
             success: true,

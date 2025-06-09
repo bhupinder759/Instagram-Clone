@@ -1,19 +1,22 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authSlice from "./authSlice.js";
-import postSlice from "./postSlice.js"
-import socketSlice from "./socketSlice.js";
+import postSlice from './postSlice.js';
+import socketSlice from "./socketSlice.js"
 import chatSlice from "./chatSlice.js";
-import { combineReducers } from 'redux';
-import {
-  persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
+import rtnSlice from "./rtnSlice.js";
+
+import { 
+    // persistStore,
+    persistReducer,
+    FLUSH,
+    REHYDRATE,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+
 
 const persistConfig = {
     key: 'root',
@@ -22,22 +25,24 @@ const persistConfig = {
 }
 
 const rootReducer = combineReducers({
-  auth: authSlice,
-  post: postSlice,
-  socketio: socketSlice,
-  chat: chatSlice
-});
+    auth:authSlice,
+    post:postSlice,
+    socketio:socketSlice,
+    chat:chatSlice,
+    realTimeNotification:rtnSlice
+})
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 const store = configureStore({
     reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
-    }),
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+        }),
 });
 
+// export const persistor = persistStore(store);
 export default store;

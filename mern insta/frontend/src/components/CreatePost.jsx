@@ -29,13 +29,14 @@ const CreatePost = ({ open, setOpen }) => {
     }
   }
 
-  const createPostHandler = async (e) => {
+  const createPostHandler = async () => { //e
     const formData = new FormData();
     formData.append("caption", caption);
     if (imagePreview) formData.append("image", file);
     try {
       setLoading(true);
-      const res = await axios.post('https://instaclone-g9h5.onrender.com/api/v1/post/addpost', formData, {
+      // const res = await axios.post('http://instaclone-g9h5.onrender.com/api/v1/post/addpost', formData, {
+      const res = await axios.post('http://localhost:8000/api/v1/post/addpost', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
